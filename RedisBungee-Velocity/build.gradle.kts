@@ -1,6 +1,7 @@
 plugins {
     `java-library`
     `maven-publish`
+    checkstyle
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("xyz.jpenilla.run-velocity") version "2.0.0"
 
@@ -17,6 +18,13 @@ dependencies {
         exclude("com.google.guava", "guava")
         exclude("com.google.code.gson", "gson")
         exclude("org.spongepowered", "configurate-yaml")
+        // exclude also adventure api
+        exclude("net.kyori", "adventure-api")
+        exclude("net.kyori", "adventure-text-serializer-gson")
+        exclude("net.kyori", "adventure-text-serializer-legacy")
+        exclude("net.kyori", "adventure-text-serializer-plain")
+        exclude("net.kyori", "adventure-text-minimessage")
+
     }
     compileOnly("com.velocitypowered:velocity-api:3.2.0-SNAPSHOT")
     annotationProcessor("com.velocitypowered:velocity-api:3.2.0-SNAPSHOT")
@@ -28,6 +36,10 @@ java {
     withJavadocJar()
     withSourcesJar()
 }
+checkstyle {
+    toolVersion = "10.12.3"
+}
+
 
 tasks {
     withType<Javadoc> {
@@ -39,14 +51,15 @@ tasks {
             "https://jd.papermc.io/velocity/3.0.0/", // velocity api
         )
         val apiDocs = File(rootProject.projectDir, "RedisBungee-API/build/docs/javadoc")
-        options.linksOffline("https://ci.limework.net/RedisBungee/RedisBungee-API/build/docs/javadoc",  apiDocs.path)
+        options.linksOffline("https://ci.limework.net/RedisBungee/RedisBungee-API/build/docs/javadoc", apiDocs.path)
     }
     runVelocity {
-        velocityVersion("3.2.0-SNAPSHOT")
+        velocityVersion("3.3.0-SNAPSHOT")
+        environment["REDISBUNGEE_PROXY_ID"] = "velocity-1"
     }
     compileJava {
         options.encoding = Charsets.UTF_8.name()
-        options.release.set(11)
+        options.release.set(17)
     }
     javadoc {
         options.encoding = Charsets.UTF_8.name()
@@ -61,6 +74,7 @@ tasks {
         relocate("com.squareup.okhttp", "com.imaginarycode.minecraft.redisbungee.internal.okhttp")
         relocate("okio", "com.imaginarycode.minecraft.redisbungee.internal.okio")
         relocate("org.json", "com.imaginarycode.minecraft.redisbungee.internal.json")
+        relocate("com.github.benmanes.caffeine", "com.imaginarycode.minecraft.redisbungee.internal.caffeine")
     }
 
 }
